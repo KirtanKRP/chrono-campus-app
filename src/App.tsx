@@ -2,25 +2,132 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+
+// Pages
+import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import StudentDashboard from "./pages/student/Dashboard";
+import Timetable from "./pages/student/Timetable";
+import Electives from "./pages/student/Electives";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import Users from "./pages/admin/Users";
+import Events from "./pages/admin/Events";
+import AdminElectives from "./pages/admin/AdminElectives";
+import TimetableManagement from "./pages/admin/Timetable";
+import Subjects from "./pages/admin/Subjects";
+import Settings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/auth" element={<Auth />} />
+
+              {/* Student Routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-timetable"
+                element={
+                  <ProtectedRoute>
+                    <Timetable />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/electives"
+                element={
+                  <ProtectedRoute>
+                    <Electives />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin/dashboard"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Users />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/events"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Events />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/electives"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <AdminElectives />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/timetable"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <TimetableManagement />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/subjects"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Subjects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
