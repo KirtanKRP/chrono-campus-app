@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FormModal } from '@/components/modals/FormModal';
+import { SubjectForm } from '@/components/forms/SubjectForm';
+import { subjectService } from '@/services/subjectService';
 
 interface Subject {
   id: string;
@@ -30,20 +33,36 @@ interface Subject {
 export default function Subjects() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [search, setSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 
-  const handleCreate = async () => {
-    // TODO: Backend integration
-    console.log('Create new subject');
+  useEffect(() => {
+    loadSubjects();
+  }, []);
+
+  const loadSubjects = async () => {
+    const data = await subjectService.getAll();
+    setSubjects(data);
   };
 
-  const handleEdit = async (subjectId: string) => {
-    // TODO: Backend integration
-    console.log('Edit subject:', subjectId);
+  const handleCreate = () => {
+    setSelectedSubject(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (subjectId: string) => {
-    // TODO: Backend integration
-    console.log('Delete subject:', subjectId);
+    await subjectService.delete(subjectId);
+    loadSubjects();
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    loadSubjects();
   };
 
   return (
@@ -119,7 +138,7 @@ export default function Subjects() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="glass">
-                            <DropdownMenuItem onClick={() => handleEdit(subject.id)}>
+                            <DropdownMenuItem onClick={() => handleEdit(subject)}>
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -138,6 +157,18 @@ export default function Subjects() {
             </Table>
           </div>
         </div>
+
+        <FormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={selectedSubject ? 'Edit Subject' : 'Create New Subject'}
+        >
+          <SubjectForm
+            onSuccess={handleFormSuccess}
+            onCancel={() => setIsModalOpen(false)}
+            initialData={selectedSubject}
+          />
+        </FormModal>
       </motion.div>
     </DashboardLayout>
   );

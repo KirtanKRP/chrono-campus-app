@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FormModal } from '@/components/modals/FormModal';
+import { EventForm } from '@/components/forms/EventForm';
+import { eventService } from '@/services/eventService';
 
 interface Event {
   id: string;
@@ -29,20 +32,36 @@ interface Event {
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  const handleCreate = async () => {
-    // TODO: Backend integration - open modal with form
-    console.log('Create new event');
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const loadEvents = async () => {
+    const data = await eventService.getAll();
+    setEvents(data);
   };
 
-  const handleEdit = async (eventId: string) => {
-    // TODO: Backend integration
-    console.log('Edit event:', eventId);
+  const handleCreate = () => {
+    setSelectedEvent(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (eventId: string) => {
-    // TODO: Backend integration
-    console.log('Delete event:', eventId);
+    await eventService.delete(eventId);
+    loadEvents();
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    loadEvents();
   };
 
   return (
@@ -116,7 +135,7 @@ export default function Events() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="glass">
-                            <DropdownMenuItem onClick={() => handleEdit(event.id)}>
+                            <DropdownMenuItem onClick={() => handleEdit(event)}>
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -135,6 +154,18 @@ export default function Events() {
             </Table>
           </div>
         </div>
+
+        <FormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={selectedEvent ? 'Edit Event' : 'Create New Event'}
+        >
+          <EventForm
+            onSuccess={handleFormSuccess}
+            onCancel={() => setIsModalOpen(false)}
+            initialData={selectedEvent}
+          />
+        </FormModal>
       </motion.div>
     </DashboardLayout>
   );

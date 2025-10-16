@@ -30,36 +30,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     // TODO: Backend integration - axios.post('/auth/login', { email, password })
+    // const { data } = await axios.post('/auth/login', { email, password });
+    // setUser(data.user);
+    // localStorage.setItem('user', JSON.stringify(data.user));
+    // localStorage.setItem('token', data.token);
     console.log('Login attempt:', { email, password });
-    
-    // Mock for development
-    const mockUser: User = {
-      id: '1',
-      email,
-      name: 'Demo User',
-      role: email.includes('admin') ? 'admin' : 'student',
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    localStorage.setItem('token', 'mock-token');
   };
 
   const signup = async (name: string, email: string, password: string) => {
     // TODO: Backend integration - axios.post('/auth/signup', { name, email, password })
+    // const { data } = await axios.post('/auth/signup', { full_name: name, email, password, role: 'student' });
+    // setUser(data.user);
+    // localStorage.setItem('user', JSON.stringify(data.user));
+    // localStorage.setItem('token', data.token);
     console.log('Signup attempt:', { name, email, password });
-    
-    // Mock for development
-    const mockUser: User = {
-      id: '1',
-      email,
-      name,
-      role: 'student',
-    };
-    
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    localStorage.setItem('token', 'mock-token');
   };
 
   const logout = () => {

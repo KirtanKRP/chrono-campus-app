@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { FormModal } from '@/components/modals/FormModal';
+import { UserForm } from '@/components/forms/UserForm';
+import { userService } from '@/services/userService';
 
 interface User {
   id: string;
@@ -29,20 +32,36 @@ interface User {
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-  const handleCreate = async () => {
-    // TODO: Backend integration - open modal with form
-    console.log('Create new user');
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    const data = await userService.getAll();
+    setUsers(data);
   };
 
-  const handleEdit = async (userId: string) => {
-    // TODO: Backend integration - api.get(`/users/${userId}`) then open modal
-    console.log('Edit user:', userId);
+  const handleCreate = () => {
+    setSelectedUser(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (userId: string) => {
-    // TODO: Backend integration - api.delete(`/users/${userId}`)
-    console.log('Delete user:', userId);
+    await userService.delete(userId);
+    loadUsers();
+  };
+
+  const handleFormSuccess = () => {
+    setIsModalOpen(false);
+    loadUsers();
   };
 
   return (
@@ -120,7 +139,7 @@ export default function Users() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="glass">
-                            <DropdownMenuItem onClick={() => handleEdit(user.id)}>
+                            <DropdownMenuItem onClick={() => handleEdit(user)}>
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
@@ -139,6 +158,18 @@ export default function Users() {
             </Table>
           </div>
         </div>
+
+        <FormModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title={selectedUser ? 'Edit User' : 'Create New User'}
+        >
+          <UserForm
+            onSuccess={handleFormSuccess}
+            onCancel={() => setIsModalOpen(false)}
+            initialData={selectedUser}
+          />
+        </FormModal>
       </motion.div>
     </DashboardLayout>
   );
