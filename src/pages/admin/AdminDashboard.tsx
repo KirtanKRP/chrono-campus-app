@@ -1,10 +1,37 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Calendar, BookOpen, TrendingUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { FormModal } from '@/components/modals/FormModal';
+import { UserForm } from '@/components/forms/UserForm';
+import { EventForm } from '@/components/forms/EventForm';
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+
+  const quickActions = [
+    { 
+      label: 'Add User', 
+      icon: Users, 
+      action: () => setIsUserModalOpen(true)
+    },
+    { 
+      label: 'Create Event', 
+      icon: Calendar, 
+      action: () => setIsEventModalOpen(true)
+    },
+    { 
+      label: 'Manage Electives', 
+      icon: BookOpen, 
+      action: () => navigate('/admin/electives')
+    },
+  ];
+
   return (
     <DashboardLayout>
       <motion.div
@@ -73,14 +100,11 @@ export default function AdminDashboard() {
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { label: 'Add User', icon: Users },
-              { label: 'Create Event', icon: Calendar },
-              { label: 'Manage Electives', icon: BookOpen },
-            ].map((action) => (
+            {quickActions.map((action) => (
               <Button
                 key={action.label}
                 variant="outline"
+                onClick={action.action}
                 className="h-20 flex flex-col items-center justify-center gap-2 glow-accent-hover"
                 asChild
               >
@@ -96,6 +120,28 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       </motion.div>
+
+      <FormModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        title="Create New User"
+      >
+        <UserForm
+          onSuccess={() => setIsUserModalOpen(false)}
+          onCancel={() => setIsUserModalOpen(false)}
+        />
+      </FormModal>
+
+      <FormModal
+        isOpen={isEventModalOpen}
+        onClose={() => setIsEventModalOpen(false)}
+        title="Create New Event"
+      >
+        <EventForm
+          onSuccess={() => setIsEventModalOpen(false)}
+          onCancel={() => setIsEventModalOpen(false)}
+        />
+      </FormModal>
     </DashboardLayout>
   );
 }

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { electiveService } from '@/services/electiveService';
 
 interface Elective {
   id: string;
@@ -12,16 +13,23 @@ interface Elective {
   description: string;
 }
 
-// This would come from props/API in production
-const availableElectives: Elective[] = [];
-
 export default function Electives() {
+  const [availableElectives, setAvailableElectives] = useState<Elective[]>([]);
   const [preferences, setPreferences] = useState<(Elective | null)[]>(Array(5).fill(null));
   const [draggedItem, setDraggedItem] = useState<Elective | null>(null);
 
+  useEffect(() => {
+    loadElectives();
+  }, []);
+
+  const loadElectives = async () => {
+    const data = await electiveService.getAll();
+    setAvailableElectives(data);
+  };
+
   const handleSubmit = async () => {
-    // TODO: Backend integration - api.post('/electives/submit', preferences)
-    console.log('Submitting preferences:', preferences);
+    const validPreferences = preferences.filter(p => p !== null);
+    await electiveService.submitPreferences(validPreferences);
     toast.success('Preferences submitted successfully!');
   };
 

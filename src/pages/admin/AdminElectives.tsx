@@ -1,14 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus, Edit, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { electiveService } from '@/services/electiveService';
+import { FormModal } from '@/components/modals/FormModal';
+import { ElectiveForm } from '@/components/forms/ElectiveForm';
 
 export default function AdminElectives() {
   const [confirmText, setConfirmText] = useState('');
+  const [electives, setElectives] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingElective, setEditingElective] = useState(null);
+
+  useEffect(() => {
+    loadElectives();
+  }, []);
+
+  const loadElectives = async () => {
+    const data = await electiveService.getAll();
+    setElectives(data);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this elective?')) {
+      await electiveService.delete(id);
+      toast.success('Elective deleted successfully!');
+      loadElectives();
+    }
+  };
 
   const handleRunAllocation = async () => {
     if (confirmText !== 'ALLOCATE') {
@@ -16,9 +39,9 @@ export default function AdminElectives() {
       return;
     }
 
-    // TODO: Backend integration - api.post('/electives/allocate')
-    console.log('Running elective allocation...');
+    await electiveService.runAllocation();
     toast.success('Allocation started successfully!');
+    setConfirmText('');
   };
 
   return (
@@ -28,9 +51,87 @@ export default function AdminElectives() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-6"
       >
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Elective Allocation</h1>
-          <p className="text-muted-foreground">Run the allocation algorithm for student preferences</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Elective Management</h1>
+            <p className="text-muted-foreground">Manage electives and run allocation</p>
+          </div>
+          <Button
+            onClick={() => {
+              setEditingElective(null);
+              setIsModalOpen(true);
+            }}
+            className="bg-primary text-primary-foreground font-semibold glow-primary-hover"
+            asChild
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create New Elective
+            </motion.button>
+          </Button>
+        </div>
+
+        <div className="glass rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-accent/10">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                    Subject Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                    Department
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                    Semester
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                    Max Students
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {electives.map((elective: any) => (
+                  <motion.tr
+                    key={elective.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="hover:bg-accent/5"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap font-medium">{elective.subject_name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{elective.department}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{elective.semester}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{elective.max_students}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingElective(elective);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(elective.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <Card className="glass border-destructive/50">
@@ -96,6 +197,21 @@ export default function AdminElectives() {
           </CardContent>
         </Card>
       </motion.div>
+
+      <FormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={editingElective ? 'Edit Elective' : 'Create New Elective'}
+      >
+        <ElectiveForm
+          initialData={editingElective}
+          onSuccess={() => {
+            setIsModalOpen(false);
+            loadElectives();
+          }}
+          onCancel={() => setIsModalOpen(false)}
+        />
+      </FormModal>
     </DashboardLayout>
   );
 }

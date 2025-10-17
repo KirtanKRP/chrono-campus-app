@@ -20,6 +20,9 @@ import Events from "./pages/admin/Events";
 import AdminElectives from "./pages/admin/AdminElectives";
 import TimetableManagement from "./pages/admin/Timetable";
 import Subjects from "./pages/admin/Subjects";
+import Clubs from "./pages/admin/Clubs";
+import Teachers from "./pages/admin/Teachers";
+import Rooms from "./pages/admin/Rooms";
 import Settings from "./pages/admin/Settings";
 
 const queryClient = new QueryClient();
@@ -109,6 +112,30 @@ const App = () => (
                 element={
                   <ProtectedRoute adminOnly>
                     <Subjects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/clubs"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Clubs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/teachers"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Teachers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/rooms"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <Rooms />
                   </ProtectedRoute>
                 }
               />

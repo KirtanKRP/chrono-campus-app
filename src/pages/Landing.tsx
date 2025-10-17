@@ -1,13 +1,99 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Navbar } from '@/components/layout/Navbar';
 import { Calendar, BookOpen, Clock, ArrowRight, Users, Shield, Zap, ChevronDown, CheckCircle2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef, MouseEvent } from 'react';
 
 export default function Landing() {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Magnetic shimmer button component
+  const MagneticShimmerButton = ({ children, onClick, size = "lg", className = "" }: any) => {
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const handleMouseMove = (e: MouseEvent<HTMLButtonElement>) => {
+      if (!buttonRef.current) return;
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMousePosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    };
+
+    return (
+      <Button
+        ref={buttonRef}
+        onClick={onClick}
+        size={size}
+        className={`relative overflow-hidden ${className}`}
+        onMouseMove={handleMouseMove}
+        asChild
+      >
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 400 }}
+        >
+          <motion.div
+            className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background: `radial-gradient(circle 100px at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 255, 255, 0.3), transparent)`,
+            }}
+          />
+          {children}
+        </motion.button>
+      </Button>
+    );
+  };
+
+  // Animated counter component
+  const AnimatedCounter = ({ target, suffix = '' }: { target: number; suffix?: string }) => {
+    const [count, setCount] = useState(0);
+    const [hasAnimated, setHasAnimated] = useState(false);
+    const counterRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting && !hasAnimated) {
+            setHasAnimated(true);
+            let start = 0;
+            const end = target;
+            const duration = 2000;
+            const increment = end / (duration / 16);
+
+            const timer = setInterval(() => {
+              start += increment;
+              if (start >= end) {
+                setCount(end);
+                clearInterval(timer);
+              } else {
+                setCount(Math.floor(start));
+              }
+            }, 16);
+
+            return () => clearInterval(timer);
+          }
+        },
+        { threshold: 0.5 }
+      );
+
+      if (counterRef.current) {
+        observer.observe(counterRef.current);
+      }
+
+      return () => observer.disconnect();
+    }, [target, hasAnimated]);
+
+    return (
+      <div ref={counterRef} className="text-5xl md:text-6xl font-bold text-primary">
+        {count.toLocaleString()}{suffix}
+      </div>
+    );
+  };
 
   const titleWords = ['Your', 'Entire', 'Campus,', 'Unified.'];
   
@@ -155,21 +241,14 @@ export default function Landing() {
             transition={{ delay: 0.6, type: 'spring', stiffness: 150 }}
             className="flex gap-4 justify-center"
           >
-            <Button
+            <MagneticShimmerButton
               onClick={() => navigate('/auth')}
               size="lg"
-              className="bg-primary text-primary-foreground font-semibold glow-primary-hover group relative overflow-hidden"
-              asChild
+              className="bg-primary text-primary-foreground font-semibold glow-primary-hover group"
             >
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 400 }}
-              >
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Button>
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </MagneticShimmerButton>
             <Button
               variant="outline"
               size="lg"
@@ -452,6 +531,58 @@ export default function Landing() {
         </div>
       </motion.section>
 
+      {/* Stats Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ type: 'spring' }}
+        className="py-20 px-4"
+      >
+        <div className="container mx-auto">
+          <motion.h2
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold text-center mb-16"
+          >
+            Our Impact in Numbers
+          </motion.h2>
+          <div className="grid md:grid-cols-3 gap-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-center space-y-2"
+            >
+              <AnimatedCounter target={5000} suffix="+" />
+              <p className="text-xl text-muted-foreground">Students Connected</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center space-y-2"
+            >
+              <AnimatedCounter target={100} suffix="+" />
+              <p className="text-xl text-muted-foreground">Campus Events Managed</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="text-center space-y-2"
+            >
+              <AnimatedCounter target={98} suffix="%" />
+              <p className="text-xl text-muted-foreground">User Satisfaction Rate</p>
+            </motion.div>
+          </div>
+        </div>
+      </motion.section>
+
       {/* FAQ Section */}
       <motion.section
         initial={{ opacity: 0, y: 50 }}
@@ -518,20 +649,13 @@ export default function Landing() {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of students and administrators who have transformed their campus experience.
           </p>
-          <Button
+          <MagneticShimmerButton
             onClick={() => navigate('/auth')}
             size="lg"
             className="bg-primary text-primary-foreground font-bold text-lg px-12 py-6 glow-primary-hover"
-            asChild
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400 }}
-            >
-              Create Your Free Account Now
-            </motion.button>
-          </Button>
+            Create Your Free Account Now
+          </MagneticShimmerButton>
         </div>
       </motion.section>
 
