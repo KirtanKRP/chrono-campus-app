@@ -15,7 +15,15 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const [signupData, setSignupData] = useState({ name: '', email: '', password: '' });
+  const [signupData, setSignupData] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    role: 'student',
+    department: '',
+    semester: '',
+    cgpa: ''
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -166,6 +174,45 @@ export default function Auth() {
                       type="password"
                       value={signupData.password}
                       onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                      required
+                      className="focus:ring-2 focus:ring-accent glow-accent"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-department">Department</Label>
+                      <Input
+                        id="signup-department"
+                        type="text"
+                        placeholder="Computer Science"
+                        value={signupData.department}
+                        onChange={(e) => setSignupData({ ...signupData, department: e.target.value })}
+                        required
+                        className="focus:ring-2 focus:ring-accent glow-accent"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-semester">Semester</Label>
+                      <Input
+                        id="signup-semester"
+                        type="number"
+                        placeholder="5"
+                        value={signupData.semester}
+                        onChange={(e) => setSignupData({ ...signupData, semester: e.target.value })}
+                        required
+                        className="focus:ring-2 focus:ring-accent glow-accent"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-cgpa">CGPA</Label>
+                    <Input
+                      id="signup-cgpa"
+                      type="number"
+                      step="0.01"
+                      placeholder="8.5"
+                      value={signupData.cgpa}
+                      onChange={(e) => setSignupData({ ...signupData, cgpa: e.target.value })}
                       required
                       className="focus:ring-2 focus:ring-accent glow-accent"
                     />

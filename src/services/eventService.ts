@@ -1,12 +1,22 @@
 import { api } from '@/lib/axios';
 
-export const eventService = {
-  getAll: async () => {
+export const eventsService = {
+  getAll: async (filters = {}) => {
     // TODO: Backend integration
-    // const { data } = await api.get('/events');
+    // const params = new URLSearchParams(filters).toString();
+    // const query = params ? `?${params}` : '';
+    // const { data } = await api.get(`/events${query}`);
     // return data;
-    console.log('Fetching all events');
-    return [];
+    console.log('Fetching all events with filters:', filters);
+    return { data: { events: [], count: 0 } };
+  },
+
+  getById: async (eventId: string) => {
+    // TODO: Backend integration
+    // const { data } = await api.get(`/events/${eventId}`);
+    // return data;
+    console.log('Fetching event:', eventId);
+    return { data: {} };
   },
 
   create: async (eventData: any) => {
@@ -27,5 +37,26 @@ export const eventService = {
     // TODO: Backend integration
     // await api.delete(`/events/${id}`);
     console.log('Deleting event:', id);
+  },
+
+  save: async (eventId: string) => {
+    // TODO: Backend integration
+    // const { data } = await api.post(`/events/${eventId}/save`);
+    // return data;
+    console.log('Saving event:', eventId);
+  },
+
+  unsave: async (eventId: string) => {
+    // TODO: Backend integration
+    // await api.delete(`/events/${eventId}/save`);
+    console.log('Unsaving event:', eventId);
+  },
+
+  getMySaved: async () => {
+    // TODO: Backend integration
+    // const { data } = await api.get('/events/saved/my-events');
+    // return data;
+    console.log('Fetching my saved events');
+    return { data: { events: [], count: 0 } };
   },
 };

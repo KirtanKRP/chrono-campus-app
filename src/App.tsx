@@ -7,13 +7,15 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-// Pages
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import StudentDashboard from "./pages/student/Dashboard";
 import Timetable from "./pages/student/Timetable";
+import EventsPage from "./pages/student/Events";
 import Electives from "./pages/student/Electives";
+import Profile from "./pages/student/Profile";
+import SavedEvents from "./pages/student/SavedEvents";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Users from "./pages/admin/Users";
 import Events from "./pages/admin/Events";
@@ -58,10 +60,34 @@ const App = () => (
                 }
               />
               <Route
+                path="/events"
+                element={
+                  <ProtectedRoute>
+                    <EventsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/electives"
                 element={
                   <ProtectedRoute>
                     <Electives />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/saved-events"
+                element={
+                  <ProtectedRoute>
+                    <SavedEvents />
                   </ProtectedRoute>
                 }
               />

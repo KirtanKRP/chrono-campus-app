@@ -8,11 +8,43 @@ export const authService = {
     console.log('Login:', { email, password });
   },
 
-  signup: async (full_name: string, email: string, password: string, role: string) => {
+  register: async (userData: any) => {
     // TODO: Backend integration
-    // const { data } = await api.post('/auth/signup', { full_name, email, password, role });
+    // const { data } = await api.post('/auth/register', {
+    //   full_name: userData.full_name,
+    //   email: userData.email,
+    //   password: userData.password,
+    //   role: userData.role,
+    //   department: userData.department,
+    //   semester: userData.semester,
+    //   cgpa: userData.cgpa
+    // });
     // return data;
-    console.log('Signup:', { full_name, email, password, role });
+    console.log('Register:', userData);
+  },
+
+  getProfile: async () => {
+    // TODO: Backend integration
+    // const { data } = await api.get('/auth/profile');
+    // return data;
+    console.log('Get profile');
+  },
+
+  updateProfile: async (updates: any) => {
+    // TODO: Backend integration
+    // const { data } = await api.put('/auth/profile', updates);
+    // return data;
+    console.log('Update profile:', updates);
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    // TODO: Backend integration
+    // const { data } = await api.post('/auth/change-password', {
+    //   current_password: currentPassword,
+    //   new_password: newPassword
+    // });
+    // return data;
+    console.log('Change password');
   },
 
   logout: async () => {

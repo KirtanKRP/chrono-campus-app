@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { FormModal } from '@/components/modals/FormModal';
 import { EventForm } from '@/components/forms/EventForm';
-import { eventService } from '@/services/eventService';
+import { eventsService } from '@/services/eventService';
 
 interface Event {
   id: string;
@@ -40,8 +40,12 @@ export default function Events() {
   }, []);
 
   const loadEvents = async () => {
-    const data = await eventService.getAll();
-    setEvents(data);
+    try {
+      const response = await eventsService.getAll();
+      setEvents(response.data?.events || []);
+    } catch (error) {
+      console.error('Failed to load events:', error);
+    }
   };
 
   const handleCreate = () => {
@@ -55,8 +59,13 @@ export default function Events() {
   };
 
   const handleDelete = async (eventId: string) => {
-    await eventService.delete(eventId);
-    loadEvents();
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    try {
+      await eventsService.delete(eventId);
+      loadEvents();
+    } catch (error) {
+      console.error('Failed to delete event:', error);
+    }
   };
 
   const handleFormSuccess = () => {

@@ -1,12 +1,22 @@
 import { api } from '@/lib/axios';
 
 export const clubService = {
-  getAll: async () => {
+  getAll: async (filters = {}) => {
     // TODO: Backend integration
-    // const { data } = await api.get('/clubs');
+    // const params = new URLSearchParams(filters).toString();
+    // const query = params ? `?${params}` : '';
+    // const { data } = await api.get(`/clubs${query}`);
     // return data;
     console.log('Fetching all clubs');
-    return [];
+    return { data: { clubs: [], count: 0 } };
+  },
+
+  getById: async (clubId: string) => {
+    // TODO: Backend integration
+    // const { data } = await api.get(`/clubs/${clubId}`);
+    // return data;
+    console.log('Fetching club:', clubId);
+    return { data: {} };
   },
 
   create: async (clubData: any) => {

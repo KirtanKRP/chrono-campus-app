@@ -3,24 +3,50 @@ import { motion } from 'framer-motion';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import { FormModal } from '@/components/modals/FormModal';
+import { TeacherForm } from '@/components/forms/TeacherForm';
+import { SubjectForm } from '@/components/forms/SubjectForm';
+import { RoomForm } from '@/components/forms/RoomForm';
+import { GroupForm } from '@/components/forms/GroupForm';
+import { timetableService } from '@/services/timetableService';
 
 export default function TimetableManagement() {
   const [isDraft, setIsDraft] = useState(false);
+  const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const handleGenerateDraft = async () => {
-    // TODO: Backend integration - api.post('/timetable/generate')
-    console.log('Generating draft timetable...');
-    setIsDraft(true);
-    toast.success('Draft timetable generated!');
+    const generationData = {
+      groups: [],
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      periods_per_day: 7,
+      lunch_break_period: 4,
+      academic_year: "2024-25",
+      semester_type: "odd",
+      preferences: {
+        respect_teacher_preferences: true
+      }
+    };
+    
+    try {
+      await timetableService.generateTimetable(generationData);
+      setIsDraft(true);
+      toast.success('Draft timetable generated!');
+    } catch (error) {
+      toast.error('Failed to generate timetable');
+    }
   };
 
   const handleConfirmPublish = async () => {
-    // TODO: Backend integration - api.post('/timetable/publish')
     console.log('Publishing timetable...');
     setIsDraft(false);
     toast.success('Timetable published successfully!');
+  };
+
+  const handleModalSuccess = () => {
+    setActiveModal(null);
+    toast.success('Successfully saved!');
   };
 
   return (
@@ -62,6 +88,67 @@ export default function TimetableManagement() {
             </Button>
           </motion.div>
         )}
+
+        <Card className="glass">
+          <CardContent className="p-8 space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Quick Actions</h3>
+              <p className="text-muted-foreground">
+                Manage timetable entities before generating
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                onClick={() => setActiveModal('teacher')}
+                variant="outline"
+                className="h-auto py-4 flex flex-col items-start gap-2 glow-accent-hover"
+                asChild
+              >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Plus className="h-5 w-5" />
+                  <span className="font-semibold">Add Teacher</span>
+                </motion.button>
+              </Button>
+
+              <Button
+                onClick={() => setActiveModal('subject')}
+                variant="outline"
+                className="h-auto py-4 flex flex-col items-start gap-2 glow-accent-hover"
+                asChild
+              >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Plus className="h-5 w-5" />
+                  <span className="font-semibold">Add Subject</span>
+                </motion.button>
+              </Button>
+
+              <Button
+                onClick={() => setActiveModal('room')}
+                variant="outline"
+                className="h-auto py-4 flex flex-col items-start gap-2 glow-accent-hover"
+                asChild
+              >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Plus className="h-5 w-5" />
+                  <span className="font-semibold">Add Room</span>
+                </motion.button>
+              </Button>
+
+              <Button
+                onClick={() => setActiveModal('group')}
+                variant="outline"
+                className="h-auto py-4 flex flex-col items-start gap-2 glow-accent-hover"
+                asChild
+              >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Plus className="h-5 w-5" />
+                  <span className="font-semibold">Add Group</span>
+                </motion.button>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="glass">
           <CardContent className="p-8 space-y-6">
@@ -129,6 +216,51 @@ export default function TimetableManagement() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modals */}
+        <FormModal
+          isOpen={activeModal === 'teacher'}
+          onClose={() => setActiveModal(null)}
+          title="Add Teacher"
+        >
+          <TeacherForm
+            onSuccess={handleModalSuccess}
+            onCancel={() => setActiveModal(null)}
+          />
+        </FormModal>
+
+        <FormModal
+          isOpen={activeModal === 'subject'}
+          onClose={() => setActiveModal(null)}
+          title="Add Subject"
+        >
+          <SubjectForm
+            onSuccess={handleModalSuccess}
+            onCancel={() => setActiveModal(null)}
+          />
+        </FormModal>
+
+        <FormModal
+          isOpen={activeModal === 'room'}
+          onClose={() => setActiveModal(null)}
+          title="Add Room"
+        >
+          <RoomForm
+            onSuccess={handleModalSuccess}
+            onCancel={() => setActiveModal(null)}
+          />
+        </FormModal>
+
+        <FormModal
+          isOpen={activeModal === 'group'}
+          onClose={() => setActiveModal(null)}
+          title="Add Group"
+        >
+          <GroupForm
+            onSuccess={handleModalSuccess}
+            onCancel={() => setActiveModal(null)}
+          />
+        </FormModal>
       </motion.div>
     </DashboardLayout>
   );

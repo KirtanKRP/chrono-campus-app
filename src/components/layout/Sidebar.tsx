@@ -8,7 +8,9 @@ import {
   CalendarRange, 
   Settings,
   FileText,
-  Clock
+  Clock,
+  UserCircle,
+  Bookmark
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -20,7 +22,10 @@ export const Sidebar = () => {
   const studentLinks = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: Calendar, label: 'My Timetable', path: '/my-timetable' },
+    { icon: CalendarRange, label: 'Events', path: '/events' },
+    { icon: Bookmark, label: 'Saved Events', path: '/saved-events' },
     { icon: BookOpen, label: 'Elective Choices', path: '/electives' },
+    { icon: UserCircle, label: 'My Profile', path: '/profile' },
   ];
 
   const adminLinks = [

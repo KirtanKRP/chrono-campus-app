@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { eventService } from '@/services/eventService';
+import { eventsService } from '@/services/eventService';
 
 interface EventFormProps {
   onSuccess: () => void;
@@ -30,10 +30,10 @@ export const EventForm = ({ onSuccess, onCancel, initialData }: EventFormProps) 
     e.preventDefault();
     try {
       if (initialData?.id) {
-        await eventService.update(initialData.id, formData);
+        await eventsService.update(initialData.id, formData);
         toast.success('Event updated successfully!');
       } else {
-        await eventService.create(formData);
+        await eventsService.create(formData);
         toast.success('Event created successfully!');
       }
       onSuccess();

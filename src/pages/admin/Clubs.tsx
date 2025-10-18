@@ -22,8 +22,12 @@ export default function Clubs() {
   }, []);
 
   const loadClubs = async () => {
-    const data = await clubService.getAll();
-    setClubs(data);
+    try {
+      const response = await clubService.getAll();
+      setClubs(response.data?.clubs || []);
+    } catch (error) {
+      toast.error('Failed to load clubs');
+    }
   };
 
   const handleSort = (field: string) => {
