@@ -14,9 +14,10 @@ import StudentDashboard from "./pages/student/Dashboard";
 import Timetable from "./pages/student/Timetable";
 import EventsPage from "./pages/student/Events";
 import Electives from "./pages/student/Electives";
-import Profile from "./pages/student/Profile";
+import StudentProfile from "./pages/student/Profile";
 import SavedEvents from "./pages/student/SavedEvents";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProfile from "./pages/admin/Profile";
 import Users from "./pages/admin/Users";
 import Events from "./pages/admin/Events";
 import AdminElectives from "./pages/admin/AdminElectives";
@@ -79,7 +80,7 @@ const App = () => (
                 path="/profile"
                 element={
                   <ProtectedRoute>
-                    <Profile />
+                    <StudentProfile />
                   </ProtectedRoute>
                 }
               />
@@ -170,6 +171,14 @@ const App = () => (
                 element={
                   <ProtectedRoute adminOnly>
                     <Settings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/profile"
+                element={
+                  <ProtectedRoute adminOnly>
+                    <AdminProfile />
                   </ProtectedRoute>
                 }
               />

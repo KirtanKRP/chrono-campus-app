@@ -35,7 +35,7 @@ export const Sidebar = () => {
     { icon: BookOpen, label: 'Electives', path: '/admin/electives' },
     { icon: Clock, label: 'Timetable', path: '/admin/timetable' },
     { icon: FileText, label: 'Subjects', path: '/admin/subjects' },
-    { icon: UserCircle, label: 'My Profile', path: '/profile' },
+    { icon: UserCircle, label: 'My Profile', path: '/admin/profile' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

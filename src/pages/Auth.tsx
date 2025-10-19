@@ -31,8 +31,16 @@ export default function Auth() {
     
     try {
       await login(loginData.email, loginData.password);
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
       toast.success('Login successful!');
-      navigate('/dashboard');
+      
+      // Redirect based on role
+      if (user?.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error('Login failed. Please try again.');
     } finally {
