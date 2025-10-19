@@ -59,7 +59,10 @@ export const Header = () => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator className="bg-border/50" />
-            <DropdownMenuItem className="cursor-pointer hover:bg-accent/50">
+            <DropdownMenuItem 
+              onClick={() => navigate('/profile')}
+              className="cursor-pointer hover:bg-accent/50"
+            >
               <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>

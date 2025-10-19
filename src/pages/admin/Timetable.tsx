@@ -150,48 +150,92 @@ export default function TimetableManagement() {
           </CardContent>
         </Card>
 
-        <Card className="glass">
-          <CardContent className="p-8 space-y-6">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Generation Settings</h3>
-              <p className="text-muted-foreground">
-                Configure constraints and preferences for timetable generation
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Academic Year</label>
-                <select className="w-full p-2 rounded-lg bg-card border border-border">
-                  <option>2024-2025</option>
-                  <option>2025-2026</option>
-                </select>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="glass">
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Timetable Configuration</h3>
+                <p className="text-muted-foreground text-sm">
+                  Set up generation parameters
+                </p>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Semester</label>
-                <select className="w-full p-2 rounded-lg bg-card border border-border">
-                  <option>Fall</option>
-                  <option>Spring</option>
-                </select>
-              </div>
-            </div>
-
-            {!isDraft && (
-              <Button
-                onClick={handleGenerateDraft}
-                className="bg-accent text-accent-foreground font-semibold glow-accent-hover w-full"
-                asChild
-              >
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Periods per Day</label>
+                  <input 
+                    type="number" 
+                    defaultValue={7} 
+                    className="w-full p-2 rounded-lg bg-card border border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Working Days</label>
+                  <input 
+                    defaultValue="Monday - Saturday" 
+                    className="w-full p-2 rounded-lg bg-card border border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Lunch Break Period</label>
+                  <input 
+                    type="number" 
+                    defaultValue={4} 
+                    className="w-full p-2 rounded-lg bg-card border border-border"
+                  />
+                </div>
+                <Button
+                  className="w-full bg-accent text-accent-foreground glow-accent-hover"
+                  asChild
                 >
-                  Generate Draft Timetable
-                </motion.button>
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    Save Configuration
+                  </motion.button>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="glass">
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Generation Settings</h3>
+                <p className="text-muted-foreground text-sm">
+                  Configure semester and year
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Academic Year</label>
+                  <select className="w-full p-2 rounded-lg bg-card border border-border">
+                    <option>2024-2025</option>
+                    <option>2025-2026</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Semester</label>
+                  <select className="w-full p-2 rounded-lg bg-card border border-border">
+                    <option>Fall</option>
+                    <option>Spring</option>
+                  </select>
+                </div>
+                {!isDraft && (
+                  <Button
+                    onClick={handleGenerateDraft}
+                    className="bg-primary text-primary-foreground font-semibold glow-primary-hover w-full"
+                    asChild
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Generate Draft Timetable
+                    </motion.button>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card className="glass">
           <CardContent className="p-6 space-y-4">

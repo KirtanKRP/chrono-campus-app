@@ -20,6 +20,15 @@ export default function Profile() {
     semester: '5',
     cgpa: '8.5'
   });
+
+  // Calculate profile completion
+  const calculateCompletion = () => {
+    const fields = Object.values(profileData);
+    const filled = fields.filter(val => val && val.toString().trim() !== '').length;
+    return Math.round((filled / fields.length) * 100);
+  };
+
+  const profileCompletion = calculateCompletion();
   const [passwordData, setPasswordData] = useState({
     current_password: '',
     new_password: '',
@@ -67,10 +76,24 @@ export default function Profile() {
 
         <Card className="glass">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Personal Information
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Personal Information
+              </CardTitle>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Profile Completion</p>
+                <p className="text-2xl font-bold text-primary">{profileCompletion}%</p>
+              </div>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2 mt-4">
+              <motion.div 
+                className="bg-primary h-2 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${profileCompletion}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
+              />
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-6">
