@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
+import AnimatedBackground from '@/components/animations/AnimatedBackground';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -65,11 +66,8 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Effect */}
-      <div className="fixed inset-0 -z-10 opacity-20">
-        <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-accent/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
-      </div>
+      {/* Animated 3D Background */}
+      <AnimatedBackground className="opacity-20" />
 
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}

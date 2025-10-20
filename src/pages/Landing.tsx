@@ -1,9 +1,15 @@
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useScroll, useInView } from 'framer-motion';
 import { Navbar } from '@/components/layout/Navbar';
 import { Calendar, BookOpen, Clock, ArrowRight, Users, Shield, Zap, ChevronDown, CheckCircle2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, MouseEvent } from 'react';
+import AnimatedBackground from '@/components/animations/AnimatedBackground';
+import TiltCard from '@/components/animations/TiltCard';
+import CampusExplorer from '@/components/landing/CampusExplorer';
+import DayInLife from '@/components/landing/DayInLife';
+import SmartCore from '@/components/landing/SmartCore';
+import { useParallax, useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -49,49 +55,43 @@ export default function Landing() {
     );
   };
 
-  // Animated counter component
+  // Animated counter component with Framer Motion
   const AnimatedCounter = ({ target, suffix = '' }: { target: number; suffix?: string }) => {
     const [count, setCount] = useState(0);
-    const [hasAnimated, setHasAnimated] = useState(false);
     const counterRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(counterRef, { once: true, margin: '-100px' });
 
     useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true);
-            let start = 0;
-            const end = target;
-            const duration = 2000;
-            const increment = end / (duration / 16);
+      if (!isInView) return;
+      
+      let start = 0;
+      const end = target;
+      const duration = 2000;
+      const increment = end / (duration / 16);
 
-            const timer = setInterval(() => {
-              start += increment;
-              if (start >= end) {
-                setCount(end);
-                clearInterval(timer);
-              } else {
-                setCount(Math.floor(start));
-              }
-            }, 16);
+      const timer = setInterval(() => {
+        start += increment;
+        if (start >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(start));
+        }
+      }, 16);
 
-            return () => clearInterval(timer);
-          }
-        },
-        { threshold: 0.5 }
-      );
-
-      if (counterRef.current) {
-        observer.observe(counterRef.current);
-      }
-
-      return () => observer.disconnect();
-    }, [target, hasAnimated]);
+      return () => clearInterval(timer);
+    }, [isInView, target]);
 
     return (
-      <div ref={counterRef} className="text-5xl md:text-6xl font-bold text-primary">
+      <motion.div
+        ref={counterRef}
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={isInView ? { opacity: 1, scale: 1 } : {}}
+        transition={{ duration: 0.5 }}
+        className="text-5xl md:text-6xl font-bold text-primary"
+      >
         {count.toLocaleString()}{suffix}
-      </div>
+      </motion.div>
     );
   };
 
@@ -157,43 +157,21 @@ export default function Landing() {
 
   const universities = ['MIT', 'Stanford', 'Harvard', 'Berkeley', 'Oxford', 'Cambridge'];
 
+  // Parallax background ref
+  const heroRef = useRef<HTMLDivElement>(null);
+  const scrollProgress = useScrollAnimation({ target: heroRef });
+  const parallaxY = useParallax(scrollProgress, 100);
+
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Aurora Background Effect - Placeholder for Animated SVG */}
-      <div className="fixed inset-0 -z-10 opacity-30">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-accent/30 to-primary/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-l from-primary/30 to-accent/30 rounded-full blur-3xl"
-        />
-      </div>
+      {/* Animated 3D Background */}
+      <AnimatedBackground className="opacity-30" />
 
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto text-center">
+      {/* Hero Section with Parallax */}
+      <section ref={heroRef} className="pt-32 pb-20 px-4 relative">
+        <motion.div style={{ y: parallaxY }} className="container mx-auto text-center">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -264,7 +242,7 @@ export default function Landing() {
               </motion.button>
             </Button>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Social Proof Bar */}
@@ -296,36 +274,52 @@ export default function Landing() {
         </div>
       </motion.section>
 
-      {/* Why This Hub Section */}
-      <motion.section
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ type: 'spring' }}
-        className="py-20 px-4"
-      >
+      {/* Why This Hub Section with Scroll-Tied Animations */}
+      <motion.section className="py-20 px-4">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ type: 'spring', stiffness: 100 }}
               className="space-y-4"
             >
-              <h2 className="text-4xl font-bold text-destructive">The Problem</h2>
-              <p className="text-muted-foreground text-lg">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                className="text-4xl font-bold text-destructive"
+              >
+                The Problem
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ delay: 0.1 }}
+                className="text-muted-foreground text-lg"
+              >
                 Students and administrators struggle with fragmented systems, conflicting schedules, 
                 and inefficient communication channels. Important information gets lost, events are 
                 missed, and valuable time is wasted navigating multiple platforms.
-              </p>
+              </motion.p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: '-100px' }}
+              transition={{ type: 'spring', stiffness: 100 }}
               className="space-y-6"
             >
-              <h2 className="text-4xl font-bold text-primary">The Solution</h2>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                className="text-4xl font-bold text-primary"
+              >
+                The Solution
+              </motion.h2>
               <div className="space-y-4">
                 {[
                   'Unified platform that brings all campus operations together',
@@ -336,11 +330,18 @@ export default function Landing() {
                     key={i}
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
+                    viewport={{ once: true, margin: '-100px' }}
+                    transition={{ delay: i * 0.15, type: 'spring' }}
                     className="flex items-start gap-3"
                   >
-                    <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true, margin: '-100px' }}
+                      transition={{ delay: i * 0.15 + 0.2 }}
+                    >
+                      <CheckCircle2 className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                    </motion.div>
                     <p className="text-muted-foreground">{benefit}</p>
                   </motion.div>
                 ))}
@@ -414,7 +415,7 @@ export default function Landing() {
         </div>
       </motion.section>
 
-      {/* Features Section */}
+      {/* Features Section with Sticky Scroll and 3D Tilt */}
       <motion.section
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -455,31 +456,41 @@ export default function Landing() {
                   hidden: { opacity: 0, y: 20 },
                   visible: { opacity: 1, y: 0 },
                 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 200 }}
-                className="glass p-8 rounded-2xl glow-accent-hover transition-all duration-300 group"
               >
-                <motion.div
-                  whileHover={{ rotate: 360 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mb-4"
-                >
-                  <feature.icon className="h-6 w-6 text-accent" />
-                </motion.div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground mb-2">{feature.description}</p>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  className="text-sm text-accent"
-                >
-                  {feature.details}
-                </motion.p>
+                <TiltCard className="h-full">
+                  <div className="glass p-8 rounded-2xl h-full hover:glow-accent transition-all duration-300 group">
+                    <motion.div
+                      whileHover={{ rotate: 360, scale: 1.1 }}
+                      transition={{ duration: 0.5 }}
+                      className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center mb-4"
+                    >
+                      <feature.icon className="h-6 w-6 text-accent" />
+                    </motion.div>
+                    <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground mb-2">{feature.description}</p>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      className="text-sm text-accent"
+                    >
+                      {feature.details}
+                    </motion.p>
+                  </div>
+                </TiltCard>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </motion.section>
+
+      {/* New Section: Interactive Campus Hub Explorer */}
+      <CampusExplorer />
+
+      {/* New Section: A Day in the Life */}
+      <DayInLife />
+
+      {/* New Section: The Smart Core */}
+      <SmartCore />
 
       {/* Testimonials Section */}
       <motion.section
