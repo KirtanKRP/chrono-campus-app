@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 import AnimatedBackground from '@/components/animations/AnimatedBackground';
@@ -19,11 +20,9 @@ export default function Auth() {
   const [signupData, setSignupData] = useState({ 
     name: '', 
     email: '', 
-    password: '', 
-    role: 'student',
-    department: '',
-    semester: '',
-    cgpa: ''
+    password: '',
+    confirmPassword: '',
+    role: 'student' as 'student' | 'admin'
   });
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -51,12 +50,33 @@ export default function Auth() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate password match
+    if (signupData.password !== signupData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
+      // Send only required fields to API
+      const payload = {
+        full_name: signupData.name,
+        email: signupData.email,
+        password: signupData.password,
+        role: signupData.role
+      };
+      
       await signup(signupData.name, signupData.email, signupData.password);
       toast.success('Account created successfully!');
-      navigate('/dashboard');
+      
+      // Redirect based on role
+      if (signupData.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast.error('Signup failed. Please try again.');
     } finally {
@@ -174,6 +194,21 @@ export default function Auth() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="signup-role">I am a</Label>
+                    <Select 
+                      value={signupData.role} 
+                      onValueChange={(value: 'student' | 'admin') => setSignupData({ ...signupData, role: value })}
+                    >
+                      <SelectTrigger className="focus:ring-2 focus:ring-accent glow-accent">
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="student">I am a Student</SelectItem>
+                        <SelectItem value="admin">I am an Administrator</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
                     <Input
                       id="signup-password"
@@ -184,41 +219,13 @@ export default function Auth() {
                       className="focus:ring-2 focus:ring-accent glow-accent"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-department">Department</Label>
-                      <Input
-                        id="signup-department"
-                        type="text"
-                        placeholder="Computer Science"
-                        value={signupData.department}
-                        onChange={(e) => setSignupData({ ...signupData, department: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-accent glow-accent"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-semester">Semester</Label>
-                      <Input
-                        id="signup-semester"
-                        type="number"
-                        placeholder="5"
-                        value={signupData.semester}
-                        onChange={(e) => setSignupData({ ...signupData, semester: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-accent glow-accent"
-                      />
-                    </div>
-                  </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-cgpa">CGPA</Label>
+                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
                     <Input
-                      id="signup-cgpa"
-                      type="number"
-                      step="0.01"
-                      placeholder="8.5"
-                      value={signupData.cgpa}
-                      onChange={(e) => setSignupData({ ...signupData, cgpa: e.target.value })}
+                      id="signup-confirm-password"
+                      type="password"
+                      value={signupData.confirmPassword}
+                      onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
                       required
                       className="focus:ring-2 focus:ring-accent glow-accent"
                     />
